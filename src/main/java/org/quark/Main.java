@@ -5,7 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,10 +27,9 @@ public class Main {
                     .filter(ticket -> "VVO".equals(ticket.origin) && "TLV".equals(ticket.destination))
                     .collect(Collectors.toList());
 
-            // Минимальное время полета для каждого перевозчика
             Map<String, Duration> minFlightTimes = new HashMap<>();
             for (Ticket ticket : filteredTickets) {
-                Duration flightDuration = calculateDuration(ticket.departure_time, ticket.arrival_time);
+                Duration flightDuration = calculateDuration(ticket.departure_date, ticket.departure_time, ticket.arrival_date, ticket.arrival_time);
                 if (minFlightTimes.containsKey(ticket.carrier)) {
                     if (flightDuration.compareTo(minFlightTimes.get(ticket.carrier)) < 0) {
                         minFlightTimes.put(ticket.carrier, flightDuration);
@@ -55,14 +56,16 @@ public class Main {
             e.printStackTrace();
         }
     }
-    // Метод для расчета времени полета
-    private static Duration calculateDuration(String departureTime, String arrivalTime) {
+    private static Duration calculateDuration(String departureDate, String departureTime, String arrivalDate, String arrivalTime) {
         departureTime = formatTime(departureTime);
         arrivalTime = formatTime(arrivalTime);
 
-        LocalTime departure = LocalTime.parse(departureTime);
-        LocalTime arrival = LocalTime.parse(arrivalTime);
-        return Duration.between(departure, arrival);
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yy HH:mm");
+
+        LocalDateTime departureDateTime = LocalDateTime.parse(departureDate + " " + departureTime, dateTimeFormatter);
+        LocalDateTime arrivalDateTime = LocalDateTime.parse(arrivalDate + " " + arrivalTime, dateTimeFormatter);
+
+        return Duration.between(departureDateTime, arrivalDateTime);
     }
 
     // Приведение формата времени с 0:00 к 00:00
