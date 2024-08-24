@@ -27,6 +27,7 @@ public class Main {
                     .filter(ticket -> "VVO".equals(ticket.origin) && "TLV".equals(ticket.destination))
                     .collect(Collectors.toList());
 
+            // Кратчайшее время полета с учетом даты
             Map<String, Duration> minFlightTimes = new HashMap<>();
             for (Ticket ticket : filteredTickets) {
                 Duration flightDuration = calculateDuration(ticket.departure_date, ticket.departure_time, ticket.arrival_date, ticket.arrival_time);
@@ -56,6 +57,7 @@ public class Main {
             e.printStackTrace();
         }
     }
+    //расчет времени полета с учетом даты вылета и прилета
     private static Duration calculateDuration(String departureDate, String departureTime, String arrivalDate, String arrivalTime) {
         departureTime = formatTime(departureTime);
         arrivalTime = formatTime(arrivalTime);
